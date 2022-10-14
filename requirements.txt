@@ -1,0 +1,7 @@
+rsa
+pickle
+Flask
+Flask-Login
+Flask-WTF
+Flask-SQLAlchemy
+Flask-Uploads
