@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Sign in
+{% endblock %}
+
+{% block body %}
+
+<div class="flash">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+          <b><div class="{{ category }}">{{message}}</div></b>
+        {% endfor %}
+    {% endwith %}
+</div>
+
+
+<div class="form">
+    <form method="POST" action="">
+        {{ form.login(class='form-element field', autocomplete='off') }}<br>
+        {{ form.password(class='form-element field', autocomplete='off') }}<br>
+        {{ form.sign_in(class='form-element signin home-nav-panel-elements') }}
+
+        <span class='form-element' id="remain">
+            remain me {{ form.remember(class='form-element') }}
+        </span>
+    </form>
+</div>
+
+
+
+{% endblock %}

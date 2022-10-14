@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Check Profile
+{% endblock %}
+
+{% block body %}
+
+<div class="flash">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+          <b><div class="{{ category }}">{{message}}</div></b>
+        {% endfor %}
+    {% endwith %}
+</div>
+
+<div class="home-nav-panel">
+    <a href="{{ url_for('app.chat') }}" class="home-nav-panel-elements">Back</a>
+</div>
+
+<div class="profile">
+    <h2 class="profile-h2">{{ profile.name }}'s Profile</h2>
+
+    <div class="profile-text">
+        <div class="profile-block">
+            <span class="profile-span">Registered: {{ profile.regtime }}</span>
+            <span class="profile-span">Username: {{ profile.name }}</span>
+        </div>
+    </div>
+
+    <img src="{{ image_file }}" class="profile-pic" id="check-profile-pic">
+</div>
+
+{% endblock %}

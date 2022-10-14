@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Online Chat
+{% endblock %}
+
+{% block body %}
+
+<div class="home-nav-panel">
+    <a href="{{ url_for('app.home') }}" class="home-nav-panel-elements">Home</a>
+</div>
+
+<div class="chat">
+    <div id="messages">
+        {% for el in data %}
+            {% if el.user_id == current_user.id %}
+                <div id="my">
+                    <h6 id="date-my">
+                        {{ el.date }}
+                    </h6>
+
+                    <h4 id="myMessage">
+                        {{ decrypt_message(el.message) }}
+                    </h4>
+                </div>
+            {% else %}
+                <div id="other">
+                    <h4 id="name-other">
+                        {{ el.username }}
+                        <h6 id="date-other">
+                            {{ el.date }}
+                        </h6>
+                    </h4>
+
+                    <a href="{{ url_for('app.check_profile', id=el.user_id) }}"><img src="static/images/profile_pics/{{ el.user_pic}}" id="other-chat-pic"></a>
+
+                    <h4 id="otherMessage">
+                        {{ decrypt_message(el.message) }}
+                    </h4>
+                </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+</div>
+
+<div class="chat-form">
+    <form method="POST" id="form-chat">
+        {{ form.message(id="message", autocomplete='off') }}
+        {{ form.send(id="send_message") }}
+    </form>
+</div>
+
+{% endblock %}

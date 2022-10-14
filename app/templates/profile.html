@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block title %}
+My Profile
+{% endblock %}
+
+{% block body %}
+
+<div class="flash">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+          <b><div class="{{ category }}">{{message}}</div></b>
+        {% endfor %}
+    {% endwith %}
+</div>
+
+<div class="home-nav-panel">
+    <a href="{{ url_for('app.home') }}" class="home-nav-panel-elements">Home</a>
+    <a href="{{ url_for('app.logout') }}" class="home-nav-panel-elements">Logout</a>    
+</div>
+
+<div class="profile">
+    <h2 class="profile-h2">Your Profile</h2>
+
+    <div class="profile-text">
+        <div class="profile-block">
+            <span class="profile-span">Registered: {{ regtime }}</span>
+            <span class="profile-span">Username: {{ name }}</span>
+            <a href="/profile/update_profile" class="edit-profile-redirect profile-span">Edit Profile</a>
+        </div>
+    </div>
+
+    <img src="{{ image_file }}" class="profile-pic">
+</div>
+
+{% endblock %}
