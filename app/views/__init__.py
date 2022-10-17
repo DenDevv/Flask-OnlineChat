@@ -1,1 +1,1 @@
-from .view import app_blueprint, decrypt_message
+from .view import app_blueprint

@@ -13,7 +13,7 @@ images = UploadSet('images', IMAGES)
 # creating app
 def create_app():
 
-    from app.views import app_blueprint, decrypt_message
+    from app.views import app_blueprint
 
     from app.models import (
         User,
@@ -24,12 +24,10 @@ def create_app():
     # Instantiate app.
     app = Flask(__name__)
     app.secret_key = '=RtT2@nEF9=DXEULem5MMR%5+@*#zxpX'
-    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///./database/data.db"
+    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///./data.db"
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     app.config['UPLOADED_IMAGES_DEST'] = 'app/static/images/profile_pics'
     app.config['WTF_CSRF_ENABLED'] = False
-
-    app.jinja_env.globals.update(decrypt_message=decrypt_message)
 
     configure_uploads(app, images)
 

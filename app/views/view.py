@@ -1,9 +1,6 @@
 import os
-import rsa
-import pickle
 
 from datetime import datetime
-
 from flask import Blueprint, render_template, redirect, url_for, flash, request
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import login_user, login_required, logout_user, current_user
@@ -14,40 +11,6 @@ from app.forms import SignUpForm, SignInForm, EditProfileForm, ChatForm
 
 
 app_blueprint = Blueprint("app", __name__)
-
-
-def generate_keys():
-    pubkey, privkey = rsa.newkeys(512)
-
-    key_dict = {
-        'public' : pubkey.save_pkcs1(),
-        'private' : privkey.save_pkcs1()
-    }
-
-    with open('app/static/keys/private.txt', 'wb') as file:
-        pickle.dump(key_dict, file)
-
-
-def encrypt_message(message):
-    with open('app/static/keys/private.txt', 'rb') as file:
-        data_file = pickle.load(file)
-        public_key = rsa.PublicKey.load_pkcs1(data_file['public'])
-        crypto_message = rsa.encrypt(message.encode("utf-8"), public_key)
-    
-    return crypto_message
-
-
-def decrypt_message(message):
-    with open('app/static/keys/private.txt', 'rb') as file:
-        data_file = pickle.load(file)
-        private_key = rsa.PrivateKey.load_pkcs1(data_file['private'])
-        decrypt_message = rsa.decrypt(message, private_key).decode("utf-8")
-    
-    return decrypt_message
-
-
-if not os.path.exists('app/static/keys/private.txt'):
-    generate_keys()
 
 
 @app_blueprint.route('/', methods=['GET'])
@@ -208,7 +171,13 @@ def chat():
             name = profile.name
             message = form.message.data
 
-            new_message = Chat(message=encrypt_message(message), username=name, user_id=profile.id, date=date, user_pic=profile.image_file)
+            new_message = Chat(
+                            message=message, 
+                            username=name, 
+                            user_id=profile.id, 
+                            date=date, 
+                            user_pic=profile.image_file)
+
             db.session.add(new_message)
             db.session.commit()
             return redirect(url_for('app.chat'))
@@ -216,7 +185,13 @@ def chat():
         name = profile.name
         message = form.message.data
 
-        new_message = Chat(message=encrypt_message(message), username=name, user_id=profile.id, date=date, user_pic=profile.image_file)
+        new_message = Chat(
+                        message=message,
+                        username=name, 
+                        user_id=profile.id, 
+                        date=date, 
+                        user_pic=profile.image_file)
+                        
         db.session.add(new_message)
         db.session.commit()
         return redirect(url_for('app.chat'))
@@ -224,9 +199,9 @@ def chat():
     return render_template("chat.html", form=form, data=data, profile=profile)
 
 
-@app_blueprint.route("/check_profile/<id>", methods=["GET", "POST"])
+@app_blueprint.route("/check_profile/<user_name>", methods=["GET", "POST"])
 @login_required
-def check_profile(id):
-    profile = User.query.filter_by(id=id).first()
+def check_profile(user_name):
+    profile = User.query.filter_by(name=user_name).first()
     image_file = url_for('static', filename=f'images/profile_pics/{profile.image_file}')
     return render_template("check_profile.html", profile=profile, image_file=image_file)
