@@ -2,6 +2,7 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_uploads import configure_uploads, IMAGES, UploadSet
+from flask_socketio import SocketIO
 
 
 # instantiate extensions
@@ -9,10 +10,12 @@ db = SQLAlchemy()
 login_manager = LoginManager()
 images = UploadSet('images', IMAGES)
 
+app = Flask(__name__)
+socketio = SocketIO(app, cors_allowed_origins="*")
+
 
 # creating app
 def create_app():
-
     from app.views import app_blueprint
 
     from app.models import (
@@ -22,7 +25,6 @@ def create_app():
     )
 
     # Instantiate app.
-    app = Flask(__name__)
     app.secret_key = '=RtT2@nEF9=DXEULem5MMR%5+@*#zxpX'
     app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///./data.db"
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False

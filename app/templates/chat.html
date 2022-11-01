@@ -45,11 +45,73 @@ Online Chat
     </div>
 </div>
 
+<script>
+    $(document).ready(function() {
+        const monthNames = ["January", "February", "March", "April", "May", "June",
+            "July", "August", "September", "October", "November", "December"
+        ];
+        var socket = io();
+        const d = new Date();
+
+        socket.on('connect', function() {
+            socket.send("User connected!");
+        });
+
+        socket.on('message', function(data) {
+            if (data.split(";")[1] == "{{ current_user.id }}") {
+                $("#messages").append(
+                    $('<h6>').text(
+                        d.getDate() + "-" + 
+                        monthNames[d.getMonth()] + " " + 
+                        d.getHours() + ":" + 
+                        d.getMinutes()
+                        ).attr("id", "date-my"),
+
+                    $('<h4>').text(data.split(";")[0]).attr("id", "myMessage")
+                );
+            }
+            else {
+                $("#messages").append(
+                    $('<h4>').text(data.split(";")[2]).attr("id", "name-other"),
+
+                    $('<h6>').text(
+                        d.getDate() + "-" + 
+                        monthNames[d.getMonth()] + " " + 
+                        d.getHours() + ":" + 
+                        d.getMinutes()
+                        ).attr("id", "date-other"),
+
+                    $("<a>").attr("href", "/check_profile/" + data.split(";")[2]).append(
+                    $("<img>").attr("src", "static/images/profile_pics/" + data.split(";")[3])
+                    .attr("id", "other-chat-pic")
+                    ),
+
+                    $('<h4>').text(data.split(";")[0]).attr("id", "otherMessage")
+                );
+            };
+            
+            $('.chat').scrollTop($('.chat')[0].scrollHeight);
+        });
+
+        $("#send_message").on('click', function() {
+            if ($('#message').val() != "") {
+                socket.send(
+                    $('#message').val() + ";" + 
+                    "{{ current_user.id }}" + ";" + 
+                    "{{ current_user.name }}" + ";" +
+                    "{{ current_user.image_file }}"
+                );
+
+                $('#message').val("");
+                $('.chat').scrollTop($('.chat')[0].scrollHeight);
+            };
+        });
+    });
+</script>
+
 <div class="chat-form">
-    <form method="POST" id="form-chat">
-        {{ form.message(id="message", autocomplete='off') }}
-        {{ form.send(id="send_message") }}
-    </form>
+    {{ form.message(id="message", autocomplete='off') }}
+    {{ form.send(id="send_message") }}
 </div>
 
 {% endblock %}

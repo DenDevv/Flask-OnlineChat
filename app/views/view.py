@@ -4,8 +4,9 @@ from datetime import datetime
 from flask import Blueprint, render_template, redirect, url_for, flash, request
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import login_user, login_required, logout_user, current_user
+from flask_socketio import send
 
-from app import db, images
+from app import db, images, socketio
 from app.models import User, Role, Chat
 from app.forms import SignUpForm, SignInForm, EditProfileForm, ChatForm
 
@@ -111,14 +112,14 @@ def signup():
         user_name = User.query.filter_by(name=name).first()
 
         if not user and not user_name and len(password) > 8:
-            new_user = User(login=login,
-                            name=name,
-                            password=generate_password_hash(password, method='sha256'),
-                            regtime=regtime
-                            )
+            new_user = User(
+                login=login,
+                name=name,
+                password=generate_password_hash(password, method='sha256'),
+                regtime=regtime
+            )
 
             simple_user_role = Role(name='user')
-
             new_user.roles = [simple_user_role,]
 
             db.session.add(new_user)
@@ -157,45 +158,36 @@ def logout():
     return redirect(url_for('app.home'))
 
 
-@app_blueprint.route("/chat", methods=["GET", "POST"])
+@socketio.on("message")
+def message_handler(message):
+    profile = User.query.filter_by(id=current_user.id).first()
+    date = datetime.strftime(datetime.now(), "%d-%B %H:%M")
+
+    if message != "User connected!":
+        if Chat.query.filter_by(id=Chat.id).count() == 50:
+            db.session.query(Chat).delete()
+        
+        name = profile.name
+        new_message = Chat(
+            message=message.split(";")[0], 
+            username=name, 
+            user_id=profile.id, 
+            date=date, 
+            user_pic=profile.image_file
+        )
+
+        db.session.add(new_message)
+        db.session.commit()
+
+        send(message, broadcast=True)
+
+
+@app_blueprint.route("/chat", methods=["GET"])
 @login_required
 def chat():
     form = ChatForm()
     data = Chat.query.order_by(Chat.id.asc()).all()
     profile = User.query.filter_by(id=current_user.id).first()
-    date = datetime.strftime(datetime.now(), "%d-%B %H:%M")
-
-    if form.validate_on_submit():
-        if Chat.query.filter_by(id=Chat.id).count() == 50:
-            db.session.query(Chat).delete()
-            name = profile.name
-            message = form.message.data
-
-            new_message = Chat(
-                            message=message, 
-                            username=name, 
-                            user_id=profile.id, 
-                            date=date, 
-                            user_pic=profile.image_file)
-
-            db.session.add(new_message)
-            db.session.commit()
-            return redirect(url_for('app.chat'))
-
-        name = profile.name
-        message = form.message.data
-
-        new_message = Chat(
-                        message=message,
-                        username=name, 
-                        user_id=profile.id, 
-                        date=date, 
-                        user_pic=profile.image_file)
-                        
-        db.session.add(new_message)
-        db.session.commit()
-        return redirect(url_for('app.chat'))
-    
     return render_template("chat.html", form=form, data=data, profile=profile)
 
 
