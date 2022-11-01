@@ -1,5 +1,4 @@
 rsa
-pickle
 Flask
 Flask-Login
 Flask-WTF
