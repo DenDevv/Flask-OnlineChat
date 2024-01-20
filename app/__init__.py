@@ -25,7 +25,7 @@ def create_app():
     )
 
     # Instantiate app.
-    app.secret_key = '=RtT2@nEF9=DXEULem5MMR%5+@*#zxpX'
+    app.secret_key = ''
     app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///./data.db"
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     app.config['UPLOADED_IMAGES_DEST'] = 'app/static/images/profile_pics'
